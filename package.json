@@ -1,7 +1,6 @@
 {
   "name": "web322-app",
   "version": "1.0.0",
-  "description": "",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,5 +10,14 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danilovityk/web322-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/danilovityk/web322-app/issues"
+  },
+  "homepage": "https://github.com/danilovityk/web322-app#readme",
+  "description": ""
 }
