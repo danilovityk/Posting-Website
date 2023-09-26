@@ -1,3 +1,4 @@
+const serv = require('./blog-service')
 const express = require('express'); // "require" the Express module
 const app = express(); // obtain the "app" object
 const HTTP_PORT = process.env.PORT || 8080; // assign a port
@@ -12,4 +13,14 @@ app.get('/', (req, res) => {
 
 app.get('/about', (req, res) => {
     res.sendFile('/Users/danilovityk/Desktop/web322-app/views/about.html');
-  });
+});
+  
+app.get('/posts', (req, res) =>
+{
+    res.send();
+});
+  
+app.get('/categories', (req, res) => {
+    res.send();
+});
+  
