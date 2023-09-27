@@ -1,3 +1,18 @@
+
+/*********************************************************************************
+*  WEB322 – Assignment 02
+*  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  
+*  No part of this assignment has been copied manually or electronically from any other source 
+*  (including 3rd party web sites) or distributed to other students.
+* 
+*  Name: Danylo Vityk Student ID: 176326213 Date: 27 Sep, 2023
+*
+*  Online (Cyclic) Link: ________________________________________________________
+*
+************************************************************************************/  
+
+
+
 const serv = require('./blog-service')
 const path = require('path');
 const express = require('express'); // "require" the Express module
@@ -19,6 +34,10 @@ app.get('/', (req, res) => {
   
 app.get('/about', (req, res) => {
     res.sendFile(path.join(__dirname, '/views/about.html'));
+});
+
+app.get('/public/css/main.css', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/css/main.css'));
 });
 
 app.get('/blog', (req, res) =>
