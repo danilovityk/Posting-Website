@@ -7,7 +7,7 @@
 * 
 *  Name: Danylo Vityk Student ID: 176326213 Date: 27 Sep, 2023
 *
-*  Online (Cyclic) Link: ________________________________________________________
+*  Online (Cyclic) Link: https://filthy-cod-swimsuit.cyclic.cloud/about
 *
 ************************************************************************************/  
 
@@ -18,7 +18,7 @@ const path = require('path');
 const express = require('express'); // "require" the Express module
 const app = express(); // obtain the "app" object
 const HTTP_PORT = process.env.PORT || 8080; // assign a port
-
+app.use(express.static('public')); 
 // start the server on the port and output a confirmation ot the console
 serv.initialize()
 .then(() =>
@@ -34,10 +34,6 @@ app.get('/', (req, res) => {
   
 app.get('/about', (req, res) => {
     res.sendFile(path.join(__dirname, '/views/about.html'));
-});
-
-app.get('/public/css/main.css', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/css/main.css'));
 });
 
 app.get('/blog', (req, res) =>
