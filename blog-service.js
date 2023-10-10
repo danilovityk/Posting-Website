@@ -90,4 +90,77 @@ async function getCategories()
     })
 }
 
-module.exports = { initialize, getAllPosts, getPublishedPosts, getCategories };
+function addPost(postData)
+{
+    return new Promise((resolve, reject) =>
+    {
+        if (!postData.published)
+        {
+            postData.published = false;
+        } else
+        {
+            postData.published = true;
+        }
+
+        postData.id = posts.length + 1;
+        posts.push(postData)
+
+        resolve(postData)
+    })
+}
+
+function getPostsByCategory(category)
+{
+    return new Promise((resolve, reject) =>
+    {
+        var categorizedArray = []
+        posts.forEach((post) =>
+        {
+            if (post.category == category) categorizedArray.push(post);
+        })
+        if (categorizedArray.length != 0)
+        {
+            resolve(categorizedArray);
+        } else
+        {
+            reject("No Results Returned");
+        }
+    });
+}
+
+function getPostsByMinDate(minDateStr)
+{
+        return new Promise((resolve, reject) =>
+        {
+            var filteredArray = []
+            posts.forEach((post) =>
+            {
+                if (new Date(post.postDate) >= new Date(minDateStr)) filteredArray.push(post);
+                
+            });
+            if (filteredArray.length != 0)
+            {
+                resolve(filteredArray);
+            } else
+            {
+                reject("No Results Returned");
+            }
+        })
+}
+
+function getPostById(id)
+{
+    return new Promise((resolve, reject) =>
+    {
+        posts.forEach(post =>
+        {
+            if (post.id == id) resolve(post)
+        })
+            
+        
+        reject("No object with given id found");
+    })
+}
+
+
+module.exports = { initialize, getAllPosts, getPublishedPosts, getCategories, addPost, getPostsByCategory, getPostsByMinDate, getPostById};
