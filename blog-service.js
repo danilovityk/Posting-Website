@@ -1,4 +1,5 @@
 const fs = require('fs')
+const blogData = require("./blog-service");
 var posts = [];
 var categories = [];
 
@@ -53,6 +54,26 @@ async function getAllPosts()
     })
 }
 
+async function getPublishedPostsByCategory(category){
+    return new Promise((resolve, reject) =>
+    {
+        if (posts.length != 0)
+        {
+            var publishedArray = [];
+            posts.forEach(post => {
+                if (post.published == true && post.category == category)
+                {
+                    publishedArray.push(post);
+                }
+            });
+            resolve(publishedArray);
+        } else
+        {
+            reject('No results returned')
+        }
+
+    })
+}
 
 async function getPublishedPosts()
 {
@@ -103,6 +124,8 @@ function addPost(postData)
         }
 
         postData.id = posts.length + 1;
+        var currentDate = new Date()
+        postData.postDate = currentDate.toLocaleDateString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit' });
         posts.push(postData)
 
         resolve(postData)
@@ -163,4 +186,4 @@ function getPostById(id)
 }
 
 
-module.exports = { initialize, getAllPosts, getPublishedPosts, getCategories, addPost, getPostsByCategory, getPostsByMinDate, getPostById};
+module.exports = { initialize, getAllPosts, getPublishedPosts, getCategories, addPost, getPostsByCategory, getPostsByMinDate, getPostById, getPublishedPostsByCategory};
