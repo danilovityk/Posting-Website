@@ -125,7 +125,7 @@ function addPost(postData)
 
         postData.id = posts.length + 1;
         var currentDate = new Date()
-        postData.postDate = currentDate.toLocaleDateString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit' });
+        postData.postDate = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDay()}` 
         posts.push(postData)
 
         resolve(postData)
