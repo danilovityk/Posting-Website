@@ -17,7 +17,7 @@ const Post = sequelize.define('Post', {
     published: Sequelize.BOOLEAN
 });
   
-const Category = sequelize.define('Post', {
+const Category = sequelize.define('Category', {
     category: Sequelize.STRING
 });
 
@@ -80,7 +80,7 @@ async function getCategories()
 
 }
 
-function addPost(postData)
+async function addPost(postData)
 {
     return new Promise((resolve, reject) => {
         postData.published = (postData.published) ? true : false;
@@ -103,7 +103,7 @@ function addPost(postData)
 
 }
 
-function getPostsByCategory(category)
+async function getPostsByCategory(category)
 {
     return new Promise((resolve, reject) => {
         Post.findAll({
@@ -117,7 +117,7 @@ function getPostsByCategory(category)
 
 }
 
-function getPostsByMinDate(minDateStr)
+async function getPostsByMinDate(minDateStr)
 {
     return new Promise((resolve, reject) => {
         Post.findAll({
@@ -132,7 +132,7 @@ function getPostsByMinDate(minDateStr)
 
 }
 
-function getPostById(id)
+async function getPostById(id)
 {
     return new Promise((resolve, reject) => {
         Post.findAll({
@@ -146,6 +146,42 @@ function getPostById(id)
 
 }
 
+async function addCategory(categoryData){
+    return new Promise((resolve, reject) => {
+        for (prop in categoryData)
+        {
+            if (prop == "")
+            {
+                prop = null;
+            }
+        }
+        
+        Category.create({
+           category: categoryData.category
+        }).then(resolve()).catch(err => reject('could not create an category'))
+    });
+}
 
+async function deleteCategoryById(id){
+    return new Promise((resolve, reject) =>
+    {
+        Category.destroy({
+            where: {
+                id: id
+            }
+        }).then(() => resolve()).catch((err) => reject('could not delete the category'))
+    });
+}
 
-module.exports = { initialize, getAllPosts, getPublishedPosts, getCategories, addPost, getPostsByCategory, getPostsByMinDate, getPostById, getPublishedPostsByCategory};
+async function deletePostById(id)
+{
+    return new Promise((resolve, reject) =>
+    {
+        Post.destroy({
+            where: {
+            id: id
+        }}).then(() => resolve()).catch(() => reject('could not delete the post'))
+    })
+}
+
+module.exports = { initialize, getAllPosts, getPublishedPosts, getCategories, addPost, getPostsByCategory, getPostsByMinDate, getPostById, getPublishedPostsByCategory, addCategory, deleteCategoryById, deletePostById};

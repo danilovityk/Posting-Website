@@ -167,16 +167,34 @@ app.get('/posts', (req, res) =>
     } else
     {
         serv.getAllPosts()
-            .then((data) => res.render('posts', { posts: data }))
-            .catch((err) => res.send({ message: "no results" }))
-        
+            .then((data) =>
+            {
+                if (data.length() > 0)
+                {
+                    res.render('posts', { posts: data })
+                } else
+                {
+                    res.render("posts", { message: "no results" });
+                }
+            })
+            .catch((err) => res.send({ message: "promise rejected" }))
     }
 });
   
 app.get('/categories', (req, res) => {
     serv.getCategories()
-        .then((data) =>  res.render('categories', {categories: data}))
-        .catch((err) => res.render("categories", {message: "no results"}))
+        .then((data) =>
+        {
+            if (data.length > 0)
+            {
+                res.render('categories', { categories: data })
+            } else
+            {
+                res.render("categories", { message: "no results" });
+            }
+            
+        })
+        .catch((err) => res.send({ message: "promise rejected" }))
 });
 
 app.get('/posts/add', (req, res) =>
