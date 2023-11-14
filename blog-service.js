@@ -39,32 +39,56 @@ async function initialize()
 async function getAllPosts()
 {
     return new Promise((resolve, reject) => {
-        Post.findAll().then(data => resolve(data))
-            .catch(err => reject('no results retuned'));
+        Post.findAll().then(data =>
+        {
+           
+            console.log(data)
+            resolve(data)
+        })
+            .catch(err =>
+            {
+                reject('no results retuned')
+            });
     });
 }
 
 async function getPublishedPostsByCategory(category)
 {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) =>
+    {
         Post.findAll({
             where: {
                 published: true,
                 category: category
             }
-        }).then(data => resolve(data)).catch(err => reject('no results returned'))
+        }).then(data =>
+        {
+            if (data.length > 0)
+            {
+                resolve(data)
+            }
+            reject('no results returned')
+        }).catch(err => reject('no results returned'))
     });
 
 }
 
 async function getPublishedPosts()
 {
-    return new Promise((resolve, reject) => {
-        Post.getAll({
+    return new Promise((resolve, reject) =>
+    {
+        console.log('get posted all is called')
+        Post.findAll({
             where: {
                 published: true,
             }
-        }).then(data => resolve(data)).catch(err => reject('no results returned'))
+        }).then(data =>
+        {
+            resolve(data)
+        }).catch(err =>
+        {
+            reject('no results returned')
+        })
     });
 
 }
@@ -91,14 +115,20 @@ async function addPost(postData)
                 prop = null;
             }
         }
+        if (!postData.category)
+        {
+            postData.category = null
+        }
         postData.postDate = new Date();
+        
         Post.create({
             title: postData.title,
             body: postData.body,
             postDate: postData.postDate,
             featureImage: postData.featureImage,
-            published: postData.published
-        }).then(resolve()).catch(err => reject('could not create an abject'))
+            published: postData.published,
+            category: postData.category
+        }).then(resolve()).catch(err => reject('could not create an object'))
     });
 
 }

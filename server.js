@@ -69,27 +69,29 @@ cloudinary.config({
 
 const upload = multer(); 
 
-serv.initialize()
-.then(() =>
+serv.initialize().then(() =>
 {
     app.listen(HTTP_PORT, () => console.log(`server listening on: ${HTTP_PORT}`))
 }).catch((err)=>{
     console.log('Initialization error')
-    })
+})
 
+app.use(express.urlencoded({extended: true}));
 
-    app.use(function(req,res,next){
+app.use(function(req,res,next){
         let route = req.path.substring(1);
         app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.*)/, "") : route.replace(/\/(.*)/, ""));
         app.locals.viewingCategory = req.query.category;
         next();
-    });
+});
 
-    
+
+        
 app.get('/', (req, res) => {
     res.redirect('/blog');
 });
   
+
 app.get('/about', (req, res) =>
 {
     res.render('about', { body: 'about' });
@@ -169,7 +171,7 @@ app.get('/posts', (req, res) =>
         serv.getAllPosts()
             .then((data) =>
             {
-                if (data.length() > 0)
+                if (data.length > 0)
                 {
                     res.render('posts', { posts: data })
                 } else
@@ -199,7 +201,14 @@ app.get('/categories', (req, res) => {
 
 app.get('/posts/add', (req, res) =>
 {
-    res.render('addPost', {body: 'addPost'});
+    serv.getCategories().then(data =>
+    {
+        res.render('addPost', {categories: data});
+    }).catch(err =>
+    {
+        res.render('addPost', {categories: []})
+    })
+   
     
 });
 app.post('/posts/add', upload.single("featureImage"), (req, res,) =>
@@ -229,9 +238,7 @@ app.post('/posts/add', upload.single("featureImage"), (req, res,) =>
     
     upload(req).then((uploaded)=>{
         req.body.featureImage = uploaded.url;
-    
         serv.addPost(req.body).then(() => res.redirect('/posts'))
-    
     });
     
     
@@ -297,6 +304,25 @@ app.get('/blog/:id', async (req, res) => {
     res.render("blog", {data: viewData})
 });
   
+app.get('/categories/add', (req, res) =>
+{
+    res.render('addCategory', {body: 'addCategory'});
+});
+
+app.post('/categories/add', (req, res) =>
+{
+    serv.addCategory(req.body).then(() => res.redirect('/categories'))
+});
+
+app.get('/categories/delete/:id', (req, res) =>
+{
+    serv.deleteCategoryById(req.params.id).then(() => res.redirect('/categories')).catch(() => res.status(500).send('Unable to Remove Category / Category not found'))
+});
+
+app.get('/posts/delete/:id', (req, res) =>
+{
+    serv.deletePostById(req.params.id).then(() => res.redirect('/posts')).catch(() => res.status(500).send('Unable to Remove Post / Post not found'))
+});
 
 app.use((req, res) => {
     res.status(404).render('404');
