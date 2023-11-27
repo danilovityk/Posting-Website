@@ -1,6 +1,6 @@
 
 /*********************************************************************************
-*  WEB322 – Assignment 02
+*  WEB322 – Assignment 05
 *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  
 *  No part of this assignment has been copied manually or electronically from any other source 
 *  (including 3rd party web sites) or distributed to other students.
@@ -10,7 +10,11 @@
 *  Online (Cyclic) Link: https://filthy-cod-swimsuit.cyclic.cloud/about
 *
 ************************************************************************************/  
-
+//rhZYqis6TP3urcpo
+//danilovityk
+//mongodb+srv://danilovityk:rhZYqis6TP3urcpo@web322.ppw6tyz.mongodb.net/?retryWrites=true&w=majority
+const clientSessions = require("client-sessions")
+const authData = require("./auth-service")
 const multer = require("multer");
 const stripJs = require('strip-js');
 const cloudinary = require('cloudinary').v2
@@ -53,7 +57,14 @@ app.engine('hbs', exphbs.engine({
             let month = (dateObj.getMonth() + 1).toString();
             let day = dateObj.getDate().toString();
             return `${year}-${month.padStart(2, '0')}-${day.padStart(2,'0')}`;
-        }        
+        },
+        ensureLogin: function (req, res, next) {
+            if (!req.session.user) {
+              res.redirect('/login');
+            } else {
+              next();
+            }
+        }
     }
 }));
 app.set('view engine', 'hbs');
@@ -69,12 +80,28 @@ cloudinary.config({
 
 const upload = multer(); 
 
-serv.initialize().then(() =>
-{
-    app.listen(HTTP_PORT, () => console.log(`server listening on: ${HTTP_PORT}`))
-}).catch((err)=>{
-    console.log('Initialization error')
+serv.initialize()
+    .then(authData.initialize)
+    .then(() => {
+        app.listen(HTTP_PORT, () => console.log(`server listening on: ${HTTP_PORT}`))
+    }).catch((err)=>{
+        console.log('Initialization error')
 })
+
+app.use(
+    clientSessions({
+      cookieName: 'session', // this is the object name that will be added to 'req'
+      secret: 'o6LjQ5EVNC28ZgK64hDELM18ScpFQr', // this should be a long un-guessable string.
+      duration: 2 * 60 * 1000, // duration of the session in milliseconds (2 minutes)
+      activeDuration: 1000 * 60, // the session will be extended by this many ms each request (1 minute)
+    })
+);
+  
+app.use(function(req, res, next) {
+    res.locals.session = req.session;
+    next();
+  });
+  
 
 app.use(express.urlencoded({extended: true}));
 
@@ -152,7 +179,7 @@ app.get('/blog', async (req, res) => {
 
 });
   
-app.get('/posts', (req, res) =>
+app.get('/posts', ensureLogin, (req, res) =>
 {
     if (req.query.category)
     {
@@ -183,7 +210,7 @@ app.get('/posts', (req, res) =>
     }
 });
   
-app.get('/categories', (req, res) => {
+app.get('/categories', ensureLogin, (req, res) => {
     serv.getCategories()
         .then((data) =>
         {
@@ -199,7 +226,7 @@ app.get('/categories', (req, res) => {
         .catch((err) => res.send({ message: "promise rejected" }))
 });
 
-app.get('/posts/add', (req, res) =>
+app.get('/posts/add', ensureLogin, (req, res) =>
 {
     serv.getCategories().then(data =>
     {
@@ -211,7 +238,7 @@ app.get('/posts/add', (req, res) =>
    
     
 });
-app.post('/posts/add', upload.single("featureImage"), (req, res,) =>
+app.post('/posts/add', upload.single("featureImage"), ensureLogin, (req, res,) =>
 {    
 
     let streamUpload = (req) => {
@@ -245,7 +272,7 @@ app.post('/posts/add', upload.single("featureImage"), (req, res,) =>
     
 });
 
-app.get('/posts/:value', (req, res) =>
+app.get('/posts/:value', ensureLogin, (req, res) =>
 {
     serv.getPostById(req.params.value)
         .then(result => res.send(result))
@@ -304,24 +331,74 @@ app.get('/blog/:id', async (req, res) => {
     res.render("blog", {data: viewData})
 });
   
-app.get('/categories/add', (req, res) =>
+app.get('/categories/add', ensureLogin, (req, res) =>
 {
     res.render('addCategory', {body: 'addCategory'});
 });
 
-app.post('/categories/add', (req, res) =>
+app.post('/categories/add', ensureLogin, (req, res) =>
 {
     serv.addCategory(req.body).then(() => res.redirect('/categories'))
 });
 
-app.get('/categories/delete/:id', (req, res) =>
+app.get('/categories/delete/:id', ensureLogin, (req, res) =>
 {
     serv.deleteCategoryById(req.params.id).then(() => res.redirect('/categories')).catch(() => res.status(500).send('Unable to Remove Category / Category not found'))
 });
 
-app.get('/posts/delete/:id', (req, res) =>
+app.get('/posts/delete/:id', ensureLogin, (req, res) =>
 {
     serv.deletePostById(req.params.id).then(() => res.redirect('/posts')).catch(() => res.status(500).send('Unable to Remove Post / Post not found'))
+});
+
+app.get('/login', (req, res) =>
+{
+    res.render('login');
+});
+
+app.get('/register', (req, res) =>
+{
+    res.render('register');
+});
+
+app.post('/register', (req, res) =>
+{
+    authData.RegisterUser(req.body).then((data) =>
+    {
+        res.render('register', { successMessage: "User created" })
+    }).catch(err =>
+    {
+        res.render('register', {errorMessage: err, userName: req.body.userName} )
+    })
+});
+
+app.post('/login', (req, res) =>
+{
+    req.body.userAgent = req.get('User-Agent');
+    authData.checkUser(req.body).then((user) => {
+        req.session.user = {
+            userName: user.userName,// authenticated user's userName
+            email: user.email,// authenticated user's email
+            loginHistory: user.loginHistory// authenticated user's loginHistory
+        }
+    
+        res.redirect('/posts');
+    }).catch(err =>
+    {
+        res.render('login', {errorMessage: err, userName: req.body.userName})
+    })
+    
+});
+
+app.get('/logout', (req, res) =>
+{
+    req.session.reset();
+    res.redirect('/');
+});
+
+app.get('/userHistory', ensureLogin, (req, res) =>
+{
+    res.render('userHistory');
 });
 
 app.use((req, res) => {
