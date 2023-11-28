@@ -70,8 +70,8 @@ async function checkUser(userData)
                 if (data.length == 0)
                 {
                     reject('Unable to find user: ' + userData.userName)
-                } else
-                {
+                } 
+                
                     if (data[0].password != userData.password)
                     {
                         reject('Incorrect Password for user ' + userData.userName)
@@ -87,7 +87,9 @@ async function checkUser(userData)
                         }).catch(err => reject('There was an error verifying the user: ' + err));
                         
                     }
-                }
+                
             }).catch(err => 'Unable to find user ' + userData.userName);
     });
 }
+
+module.exports = { initialize, registerUser, checkUser }

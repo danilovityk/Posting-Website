@@ -57,18 +57,18 @@ app.engine('hbs', exphbs.engine({
             let month = (dateObj.getMonth() + 1).toString();
             let day = dateObj.getDate().toString();
             return `${year}-${month.padStart(2, '0')}-${day.padStart(2,'0')}`;
-        },
-        ensureLogin: function (req, res, next) {
-            if (!req.session.user) {
-              res.redirect('/login');
-            } else {
-              next();
-            }
         }
     }
 }));
 app.set('view engine', 'hbs');
 
+function ensureLogin  (req, res, next) {
+    if (!req.session.user) {
+      res.redirect('/login');
+    } else {
+      next();
+    }
+}
 // start the server on the port and output a confirmation ot the console
 
 cloudinary.config({
