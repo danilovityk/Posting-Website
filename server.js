@@ -363,7 +363,7 @@ app.get('/register', (req, res) =>
 
 app.post('/register', (req, res) =>
 {
-    authData.RegisterUser(req.body).then((data) =>
+    authData.registerUser(req.body).then((data) =>
     {
         res.render('register', { successMessage: "User created" })
     }).catch(err =>
@@ -374,14 +374,15 @@ app.post('/register', (req, res) =>
 
 app.post('/login', (req, res) =>
 {
+
     req.body.userAgent = req.get('User-Agent');
+
     authData.checkUser(req.body).then((user) => {
         req.session.user = {
             userName: user.userName,// authenticated user's userName
             email: user.email,// authenticated user's email
             loginHistory: user.loginHistory// authenticated user's loginHistory
         }
-    
         res.redirect('/posts');
     }).catch(err =>
     {

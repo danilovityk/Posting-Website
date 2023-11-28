@@ -9,7 +9,7 @@ let userSchema = new Schema({
     email: String,
     loginHistory:[{dateTime: Date, userAgent: String}]
 })
-let User;// = mongoose.model('users', userSchema);
+let User;
 
 async function initialize()
 {
@@ -21,7 +21,7 @@ async function initialize()
         });
         db1.once('open', () =>
         {
-            User = mongoose.model('users', userSchema);
+            User = db1.model('users', userSchema);
             resolve();
         });
     });
@@ -35,7 +35,7 @@ async function registerUser(userData){
             User.find({ userName: userData.userName }).exec()
                 .then(data =>
                 {
-                    if (!data)
+                    if (data.length === 0)
                     {
                         let newUser = new User(userData);
                         newUser.save().then(() => resolve()).catch(err =>
@@ -71,12 +71,11 @@ async function checkUser(userData)
                 {
                     reject('Unable to find user: ' + userData.userName)
                 } 
-                
                     if (data[0].password != userData.password)
-                    {
+                    {  
                         reject('Incorrect Password for user ' + userData.userName)
                     } else
-                    {
+                    { 
                         data[0].loginHistory.push({ dateTime: (new Date()).toString(), userAgent: userData.userAgent });
                         User.updateOne(
                             { userName: data[0].userName },
@@ -85,9 +84,7 @@ async function checkUser(userData)
                         {
                             resolve(data[0]);
                         }).catch(err => reject('There was an error verifying the user: ' + err));
-                        
                     }
-                
             }).catch(err => 'Unable to find user ' + userData.userName);
     });
 }
