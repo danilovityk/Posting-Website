@@ -1,3 +1,4 @@
+const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 let userSchema = new Schema({
@@ -38,16 +39,22 @@ async function registerUser(userData){
                     if (data.length === 0)
                     {
                         let newUser = new User(userData);
-                        newUser.save().then(() => resolve()).catch(err =>
-                        { 
-                            if (err.code == 11000)
-                            {
-                                reject("Username already exists");
-                            } else
-                            {
-                                reject('There was an error creating the user: ' + err);
-                            }
-                        });
+                        bcrypt.hash(newUser.password, 10).then(hash =>
+                        {
+                            newUser.password = hash
+                            newUser.save().then(() => resolve()).catch(err =>
+                                { 
+                                    if (err.code == 11000)
+                                    {
+                                        reject("Username already exists");
+                                    } else
+                                    {
+                                        reject('There was an error creating the user: ' + err);
+                                    }
+                                });
+
+                        }).catch(err => reject("There was an error encrypting the password"));
+                        
                     } else
                     {
                         reject('User Name already taken');
@@ -70,8 +77,10 @@ async function checkUser(userData)
                 if (data.length == 0)
                 {
                     reject('Unable to find user: ' + userData.userName)
-                } 
-                    if (data[0].password != userData.password)
+                }
+                bcrypt.compare(userData.password, data[0].password).then(result =>
+                {
+                    if (!result)
                     {  
                         reject('Incorrect Password for user ' + userData.userName)
                     } else
@@ -85,6 +94,9 @@ async function checkUser(userData)
                             resolve(data[0]);
                         }).catch(err => reject('There was an error verifying the user: ' + err));
                     }
+
+                });
+                    
             }).catch(err => 'Unable to find user ' + userData.userName);
     });
 }

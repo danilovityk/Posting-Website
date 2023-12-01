@@ -13,6 +13,7 @@
 //rhZYqis6TP3urcpo
 //danilovityk
 //mongodb+srv://danilovityk:rhZYqis6TP3urcpo@web322.ppw6tyz.mongodb.net/?retryWrites=true&w=majority
+
 const clientSessions = require("client-sessions")
 const authData = require("./auth-service")
 const multer = require("multer");
